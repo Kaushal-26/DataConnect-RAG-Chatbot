@@ -12,3 +12,5 @@ dump.rdb
 
 .env
 .python-version
+
+.ruff_cache

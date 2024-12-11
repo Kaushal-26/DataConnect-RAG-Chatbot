@@ -69,7 +69,9 @@ select = [
     "SIM", # flake8-simplify
     "RUF", # Ruff-specific rules
 ]
-ignore = []
+ignore = [
+    "E501", # line too long
+]
 
 [tool.ruff.format]
 quote-style = "double"

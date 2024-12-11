@@ -45,12 +45,12 @@ export const IntegrationForm = () => {
             onChange={(e, value) => setCurrType(value)}
         />
         </Box>
-        {currType && 
+        {currType &&
         <Box>
             <CurrIntegration user={user} org={org} integrationParams={integrationParams} setIntegrationParams={setIntegrationParams} />
         </Box>
         }
-        {integrationParams?.credentials && 
+        {integrationParams?.credentials &&
         <Box sx={{mt: 2}}>
             <DataForm integrationType={integrationParams?.type} credentials={integrationParams?.credentials} />
         </Box>

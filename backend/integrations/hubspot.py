@@ -5,15 +5,15 @@ import base64
 import json
 import os
 import secrets
-from fastapi import HTTPException, Request
 
-from dotenv import load_dotenv
-from fastapi.responses import HTMLResponse
 import httpx
+from dotenv import load_dotenv
+from fastapi import HTTPException, Request
+from fastapi.responses import HTMLResponse
+from hubspot import HubSpot
 
 from integrations.integration_item import IntegrationItem
 from redis_client import add_key_value_redis, delete_key_redis, get_value_redis
-from hubspot import HubSpot
 
 load_dotenv()
 
@@ -22,7 +22,9 @@ CLIENT_SECRET = os.getenv("HUBSPOT_CLIENT_SECRET")
 
 REDIRECT_URI = "http://localhost:8000/integrations/hubspot/oauth2callback"
 SCOPES = "crm.objects.contacts.read crm.objects.companies.read"
-authorization_url = f"https://app.hubspot.com/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={SCOPES}"
+authorization_url = (
+    f"https://app.hubspot.com/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope={SCOPES}"
+)
 
 
 async def authorize_hubspot(user_id: str, org_id: str):
@@ -52,7 +54,7 @@ async def oauth2callback_hubspot(request: Request):
     code = request.query_params.get("code")
     encoded_state = request.query_params.get("state")
     state_data = json.loads(base64.urlsafe_b64decode(encoded_state).decode("utf-8"))
-    
+
     original_state = state_data.get("state")
     user_id = state_data.get("user_id")
     org_id = state_data.get("org_id")
@@ -78,10 +80,10 @@ async def oauth2callback_hubspot(request: Request):
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
             ),
-            delete_key_redis(f'hubspot_state:{org_id}:{user_id}'),
+            delete_key_redis(f"hubspot_state:{org_id}:{user_id}"),
         )
         response.raise_for_status()
-    
+
     await add_key_value_redis(f"hubspot_credentials:{org_id}:{user_id}", json.dumps(response.json()), expire=600)
 
     close_window_script = """
@@ -94,6 +96,7 @@ async def oauth2callback_hubspot(request: Request):
 
     return HTMLResponse(content=close_window_script)
 
+
 async def get_hubspot_credentials(user_id, org_id):
     """
     Get the HubSpot credentials for the user
@@ -101,14 +104,15 @@ async def get_hubspot_credentials(user_id, org_id):
     credentials = await get_value_redis(f"hubspot_credentials:{org_id}:{user_id}")
     if not credentials:
         raise HTTPException(status_code=400, detail="No credentials found for HubSpot integration.")
-    
+
     credentials = json.loads(credentials)
     if not credentials:
         raise HTTPException(status_code=400, detail="No credentials found for HubSpot integration.")
-    
+
     await delete_key_redis(f"hubspot_credentials:{org_id}:{user_id}")
 
     return credentials
+
 
 async def fetch_contacts_of_companies(api_client: HubSpot):
     """
@@ -118,12 +122,14 @@ async def fetch_contacts_of_companies(api_client: HubSpot):
     companies_with_contacts = [company.to_dict() for company in companies_with_contacts]
     return companies_with_contacts
 
+
 async def fetch_item_as_hubspot_contact(api_client: HubSpot, contact_id: str):
     """
     Fetch the contact of the company
     """
     contact = api_client.crm.contacts.basic_api.get_by_id(contact_id)
     return contact.to_dict()
+
 
 async def create_integration_item_metadata_object(contact: dict, company: dict) -> IntegrationItem:
     """
@@ -141,6 +147,7 @@ async def create_integration_item_metadata_object(contact: dict, company: dict) 
     )
     return response
 
+
 async def get_items_hubspot(credentials: str):
     """
     Get the items from HubSpot
@@ -155,21 +162,18 @@ async def get_items_hubspot(credentials: str):
     companies_with_contacts = await fetch_contacts_of_companies(api_client)
     for company in companies_with_contacts:
         contact_ids = [
-            contact.get("id") for contact in company.get("associations").get("contacts").get("results")
+            contact.get("id")
+            for contact in company.get("associations").get("contacts").get("results")
             if contact.get("type") == "company_to_contact"
         ]
 
         # Make a batch async API call to fetch the contacts
-        tasks_fetch_contacts = [
-            fetch_item_as_hubspot_contact(api_client, contact_id)
-            for contact_id in contact_ids
-        ]
+        tasks_fetch_contacts = [fetch_item_as_hubspot_contact(api_client, contact_id) for contact_id in contact_ids]
         fetched_contacts = await asyncio.gather(*tasks_fetch_contacts)
 
         # Make integration item metadata objects asynchronously
         tasks_make_integration_item_metadata = [
-            create_integration_item_metadata_object(contact, company)
-            for contact in fetched_contacts
+            create_integration_item_metadata_object(contact, company) for contact in fetched_contacts
         ]
         new_integration_item_metadata = await asyncio.gather(*tasks_make_integration_item_metadata)
 
@@ -178,4 +182,3 @@ async def get_items_hubspot(credentials: str):
     print(list_of_integration_item_metadata)
 
     return list_of_integration_item_metadata
-
