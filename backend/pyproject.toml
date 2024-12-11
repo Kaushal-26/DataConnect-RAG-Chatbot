@@ -1,0 +1,80 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Package Manager for DataConnect: OAuth-powered Multi-SaaS RAG Chatbot"
+readme = "README.md"
+authors = [
+    { name="Kaushal_26", email="kaushalsolanki260102@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.6",
+    "httpx>=0.28.1",
+    "hubspot-api-client>=11.0.0",
+    "kombu>=5.4.2",
+    "python-dotenv>=1.0.1",
+    "python-multipart>=0.0.19",
+    "redis>=5.2.1",
+    "requests>=2.32.3",
+    "uvicorn>=0.32.1",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.1",
+]
+
+
+
+
+# Ruff Settings
+
+[tool.ruff]
+# General configuration
+line-length = 120
+target-version = "py310"
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
