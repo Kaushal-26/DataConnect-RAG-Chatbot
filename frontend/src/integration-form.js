@@ -3,6 +3,8 @@ import {
     Box,
     Autocomplete,
     TextField,
+    Typography,
+    Divider,
 } from '@mui/material';
 import { AirtableIntegration } from './integrations/airtable';
 import { NotionIntegration } from './integrations/notion';
@@ -22,8 +24,18 @@ export const IntegrationForm = () => {
     const [currType, setCurrType] = useState(null);
     const CurrIntegration = integrationMapping[currType];
 
+    const handleIntegrationTypeChange = (e, value) => {
+        // Reset integrationParams when integration type changes
+        setIntegrationParams({});
+        setCurrType(value);
+    };
+
   return (
     <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' sx={{ width: '100%' }}>
+        <Typography variant="h4" gutterBottom sx={{mt: 4}}>
+            Integration Form
+            <Divider sx={{width: '100%', mt: 2}} />
+        </Typography>
         <Box display='flex' flexDirection='column'>
         <TextField
             label="User"
@@ -42,7 +54,8 @@ export const IntegrationForm = () => {
             options={Object.keys(integrationMapping)}
             sx={{ width: 300, mt: 2 }}
             renderInput={(params) => <TextField {...params} label="Integration Type" />}
-            onChange={(e, value) => setCurrType(value)}
+            onChange={handleIntegrationTypeChange}
+            value={currType}
         />
         </Box>
         {currType &&
