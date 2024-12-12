@@ -9,6 +9,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 from hubspot import HubSpot
 
+from config import settings
 from schemas import IntegrationItem
 from utils import print_items
 
@@ -56,7 +57,7 @@ class HubspotService(BaseIntegrationService):
         async with httpx.AsyncClient() as client:
             response, _ = await asyncio.gather(
                 client.post(
-                    "https://api.hubapi.com/oauth/v1/token",
+                    f"{settings.HUBSPOT_API_URL}/oauth/v1/token",
                     data={
                         "grant_type": "authorization_code",
                         "client_id": self.client_id,

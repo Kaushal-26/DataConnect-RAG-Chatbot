@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import settings
 from controllers import router
 
 
@@ -9,7 +10,7 @@ def create_server():
     app.include_router(router)
 
     origins = [
-        "http://localhost:3000",  # React app address
+        settings.FRONTEND_URL,  # React app address
     ]
     app.add_middleware(
         CORSMiddleware,

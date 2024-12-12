@@ -9,6 +9,7 @@ import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
+from config import settings
 from schemas import IntegrationItem
 from utils import print_items
 
@@ -57,7 +58,7 @@ class NotionService(BaseIntegrationService):
         async with httpx.AsyncClient() as client:
             response, _ = await asyncio.gather(
                 client.post(
-                    "https://api.notion.com/v1/oauth/token",
+                    f"{settings.NOTION_OAUTH_URL}/token",
                     json={"grant_type": "authorization_code", "code": code, "redirect_uri": self.redirect_uri},
                     headers={
                         "Authorization": f"Basic {self.encoded_client_id_secret}",
@@ -98,7 +99,7 @@ class NotionService(BaseIntegrationService):
 
         credentials = json.loads(credentials)
         response = requests.post(
-            "https://api.notion.com/v1/search",
+            f"{settings.NOTION_API_URL}/search",
             headers={
                 "Authorization": f'Bearer {credentials.get("access_token")}',
                 "Notion-Version": "2022-06-28",

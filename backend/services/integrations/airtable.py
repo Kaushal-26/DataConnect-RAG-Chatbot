@@ -10,6 +10,7 @@ import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
+from config import settings
 from schemas import IntegrationItem
 from utils import print_items
 
@@ -72,7 +73,7 @@ class AirtableService(BaseIntegrationService):
         async with httpx.AsyncClient() as client:
             response, _, _ = await asyncio.gather(
                 client.post(
-                    "https://airtable.com/oauth2/v1/token",
+                    f"{settings.AIRTABLE_OAUTH_URL}/token",
                     data={
                         "grant_type": "authorization_code",
                         "code": code,
@@ -117,7 +118,7 @@ class AirtableService(BaseIntegrationService):
         """Fetch the items from the Airtable API"""
 
         credentials = json.loads(credentials)
-        url = "https://api.airtable.com/v0/meta/bases"
+        url = f"{settings.AIRTABLE_API_URL}/meta/bases"
         list_of_integration_item_metadata = []
         list_of_responses = []
 
@@ -125,8 +126,8 @@ class AirtableService(BaseIntegrationService):
         for response in list_of_responses:
             list_of_integration_item_metadata.append(self._create_integration_item_metadata_object(response, "Base"))
             tables_response = requests.get(
-                f'https://api.airtable.com/v0/meta/bases/{response.get("id")}/tables',
-                headers={"Authorization": f'Bearer {credentials.get("access_token")}'},
+                f"{settings.AIRTABLE_API_URL}/meta/bases/{response.get('id')}/tables",
+                headers={"Authorization": f"Bearer {credentials.get('access_token')}"},
             )
             if tables_response.status_code == 200:
                 tables_response = tables_response.json()
