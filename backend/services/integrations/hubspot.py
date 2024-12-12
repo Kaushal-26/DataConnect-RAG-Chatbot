@@ -9,7 +9,8 @@ from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 from hubspot import HubSpot
 
-from integrations.integration_item import IntegrationItem
+from schemas import IntegrationItem
+from utils import print_items
 
 from .base import BaseIntegrationService
 
@@ -133,7 +134,10 @@ class HubspotService(BaseIntegrationService):
 
             list_of_integration_item_metadata.extend(new_integration_item_metadata)
 
-        print(list_of_integration_item_metadata)
+        print_items(
+            items=[item.model_dump(mode="json") for item in list_of_integration_item_metadata],
+            message="HubSpot Integration Items",
+        )
 
         return list_of_integration_item_metadata
 
@@ -169,16 +173,5 @@ class HubspotService(BaseIntegrationService):
             last_modified_time=contact.get("updated_at"),
             visibility=not contact.get("archived"),
         )
-
-        print(f"""
-        id: {response.id}
-        type: {response.type}
-        name: {response.name}
-        parent_id: {response.parent_id}
-        parent_path_or_name: {response.parent_path_or_name}
-        creation_time: {response.creation_time}
-        last_modified_time: {response.last_modified_time}
-        visibility: {response.visibility}
-        """)
 
         return response

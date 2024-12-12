@@ -1,6 +1,9 @@
+from typing import List
+
 from fastapi import APIRouter, Form, Request
 
 from dependencies import HubspotServiceDependency
+from schemas import IntegrationItem
 
 router = APIRouter(prefix="/hubspot", tags=["HubSpot Integration Routes"])
 
@@ -25,6 +28,6 @@ async def get_hubspot_credentials_integration(
     return await hubspot_service.get_credentials(user_id, org_id)
 
 
-@router.post("/load")
+@router.post("/load", response_model=List[IntegrationItem])
 async def load_slack_data_integration(hubspot_service: HubspotServiceDependency, credentials: str = Form(...)):
     return await hubspot_service.get_items(credentials)

@@ -10,7 +10,8 @@ import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
-from integrations.integration_item import IntegrationItem
+from schemas import IntegrationItem
+from utils import print_items
 
 from .base import BaseIntegrationService
 
@@ -139,12 +140,15 @@ class AirtableService(BaseIntegrationService):
                         )
                     )
 
-        print(f"list_of_integration_item_metadata: {list_of_integration_item_metadata}")
+        print_items(
+            items=[item.model_dump(mode="json") for item in list_of_integration_item_metadata],
+            message="Airtable Integration Items",
+        )
 
         return list_of_integration_item_metadata
 
     def _create_integration_item_metadata_object(
-        self, response_json: str, item_type: str, parent_id=None, parent_name=None
+        self, response_json: str, item_type: str, parent_id: Optional[str] = None, parent_name: Optional[str] = None
     ) -> IntegrationItem:
         """Create the integration item metadata object"""
 
@@ -156,14 +160,6 @@ class AirtableService(BaseIntegrationService):
             parent_id=parent_id,
             parent_path_or_name=parent_name,
         )
-
-        print(f"""
-        id: {integration_item_metadata.id}
-        name: {integration_item_metadata.name}
-        type: {integration_item_metadata.type}
-        parent_id: {integration_item_metadata.parent_id}
-        parent_path_or_name: {integration_item_metadata.parent_path_or_name}
-        """)
 
         return integration_item_metadata
 

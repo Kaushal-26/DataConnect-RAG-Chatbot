@@ -1,6 +1,9 @@
+from typing import List
+
 from fastapi import APIRouter, Form, Request
 
 from dependencies import NotionServiceDependency
+from schemas import IntegrationItem
 
 router = APIRouter(prefix="/notion", tags=["Notion Integration Routes"])
 
@@ -25,6 +28,6 @@ async def get_notion_credentials_integration(
     return await notion_service.get_credentials(user_id, org_id)
 
 
-@router.post("/load")
+@router.post("/load", response_model=List[IntegrationItem])
 async def get_notion_items(notion_service: NotionServiceDependency, credentials: str = Form(...)):
     return await notion_service.get_items(credentials)

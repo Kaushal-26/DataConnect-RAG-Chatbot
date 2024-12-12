@@ -9,7 +9,8 @@ import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
-from integrations.integration_item import IntegrationItem
+from schemas import IntegrationItem
+from utils import print_items
 
 from .base import BaseIntegrationService
 
@@ -114,7 +115,10 @@ class NotionService(BaseIntegrationService):
             # Run the tasks in parallel and wait for them to complete
             list_of_integration_item_metadata = await asyncio.gather(*task_integration_item_metadata)
 
-            print(list_of_integration_item_metadata)
+        print_items(
+            items=[item.model_dump(mode="json") for item in list_of_integration_item_metadata],
+            message="Notion Integration Items",
+        )
 
         return list_of_integration_item_metadata
 
@@ -138,15 +142,6 @@ class NotionService(BaseIntegrationService):
             last_modified_time=response_json["last_edited_time"],
             parent_id=parent_id,
         )
-
-        print(f"""
-        id: {integration_item_metadata.id}
-        name: {integration_item_metadata.name}
-        type: {integration_item_metadata.type}
-        parent_id: {integration_item_metadata.parent_id}
-        creation_time: {integration_item_metadata.creation_time}
-        last_modified_time: {integration_item_metadata.last_modified_time}
-        """)
 
         return integration_item_metadata
 

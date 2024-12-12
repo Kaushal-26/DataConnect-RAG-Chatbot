@@ -1,6 +1,9 @@
+from typing import List
+
 from fastapi import APIRouter, Form, Request
 
 from dependencies import AirtableServiceDependency
+from schemas import IntegrationItem
 
 router = APIRouter(prefix="/airtable", tags=["Airtable Integration Routes"])
 
@@ -25,6 +28,6 @@ async def get_airtable_credentials_integration(
     return await airtable_service.get_credentials(user_id=user_id, org_id=org_id)
 
 
-@router.post("/load")
+@router.post("/load", response_model=List[IntegrationItem])
 async def get_airtable_items(airtable_service: AirtableServiceDependency, credentials: str = Form(...)):
     return await airtable_service.get_items(credentials=credentials)

@@ -36,7 +36,6 @@ AIRTABLE_SCOPES = "data.records:read data.records:write data.recordComments:read
 
 async def get_airtable_service(redis_client: RedisRepositoryDependency):
     try:
-        print(f"AIRTABLE_AUTHORIZATION_URL: {AIRTABLE_AUTHORIZATION_URL}")
         yield AirtableService(
             redis_client=redis_client,
             authorization_url=AIRTABLE_AUTHORIZATION_URL,

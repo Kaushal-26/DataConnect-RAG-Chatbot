@@ -4,8 +4,8 @@ from typing import List, Optional
 
 from fastapi import Request
 
-from integrations.integration_item import IntegrationItem
 from repository.redis import RedisRepository
+from schemas import IntegrationItem
 
 
 class BaseIntegrationService(ABC):
