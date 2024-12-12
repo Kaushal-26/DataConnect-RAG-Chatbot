@@ -59,7 +59,6 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "python-multipart" },
     { name = "redis" },
-    { name = "requests" },
     { name = "rich" },
     { name = "uvicorn" },
 ]
@@ -79,7 +78,6 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "python-multipart", specifier = ">=0.0.19" },
     { name = "redis", specifier = ">=5.2.1" },
-    { name = "requests", specifier = ">=2.32.3" },
     { name = "rich", specifier = ">=13.9.4" },
     { name = "uvicorn", specifier = ">=0.32.1" },
 ]

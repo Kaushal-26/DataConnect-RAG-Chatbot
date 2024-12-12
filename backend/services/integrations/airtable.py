@@ -6,7 +6,6 @@ import secrets
 from typing import Any, List, Optional
 
 import httpx
-import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
@@ -125,10 +124,14 @@ class AirtableService(BaseIntegrationService):
         self._fetch_items(credentials.get("access_token"), url, list_of_responses)
         for response in list_of_responses:
             list_of_integration_item_metadata.append(self._create_integration_item_metadata_object(response, "Base"))
-            tables_response = requests.get(
-                f"{settings.AIRTABLE_API_URL}/meta/bases/{response.get('id')}/tables",
-                headers={"Authorization": f"Bearer {credentials.get('access_token')}"},
-            )
+
+            async with httpx.AsyncClient() as client:
+                tables_response = await client.get(
+                    f"{settings.AIRTABLE_API_URL}/meta/bases/{response.get('id')}/tables",
+                    headers={"Authorization": f"Bearer {credentials.get('access_token')}"},
+                )
+                tables_response.raise_for_status()
+
             if tables_response.status_code == 200:
                 tables_response = tables_response.json()
                 for table in tables_response["tables"]:
@@ -171,7 +174,10 @@ class AirtableService(BaseIntegrationService):
 
         params = {"offset": offset} if offset is not None else {}
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.get(url, headers=headers, params=params)
+
+        with httpx.Client() as client:
+            response = client.get(url, headers=headers, params=params)
+            response.raise_for_status()
 
         if response.status_code == 200:
             results = response.json().get("bases", {})

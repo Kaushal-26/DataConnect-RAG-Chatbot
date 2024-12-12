@@ -46,5 +46,7 @@ class Settings(BaseSettings):
     NOTION_API_URL: str = "https://api.notion.com/v1"
     NOTION_OAUTH_URL: str = f"{NOTION_API_URL}/oauth"
 
+    NOTION_VERSION: str = "2022-06-28"
+
 
 settings = Settings()

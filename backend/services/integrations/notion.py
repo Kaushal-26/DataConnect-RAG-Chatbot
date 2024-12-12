@@ -5,7 +5,6 @@ import secrets
 from typing import Any, List
 
 import httpx
-import requests
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
@@ -98,13 +97,15 @@ class NotionService(BaseIntegrationService):
         """Aggregates all metadata relevant for a notion integration"""
 
         credentials = json.loads(credentials)
-        response = requests.post(
-            f"{settings.NOTION_API_URL}/search",
-            headers={
-                "Authorization": f'Bearer {credentials.get("access_token")}',
-                "Notion-Version": "2022-06-28",
-            },
-        )
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{settings.NOTION_API_URL}/search",
+                headers={
+                    "Authorization": f"Bearer {credentials.get('access_token')}",
+                    "Notion-Version": settings.NOTION_VERSION,
+                },
+            )
+            response.raise_for_status()
 
         if response.status_code == 200:
             results = response.json()["results"]
