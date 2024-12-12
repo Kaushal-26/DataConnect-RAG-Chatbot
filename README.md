@@ -12,6 +12,10 @@ A seamless integration platform that authenticates with **HubSpot**, **Airtable*
 
 ### Setup
 
+- Go to the backend directory
+    ```bash
+    cd backend
+    ```
 - Run
     ```bash
     uv sync
@@ -22,8 +26,30 @@ A seamless integration platform that authenticates with **HubSpot**, **Airtable*
     uv run uvicorn main:app --reload
     ```
 
+## Frontend
 
-# Development
+- Go to the frontend directory
+    ```bash
+    cd frontend
+    ```
+- Install dependencies
+    ```bash
+    npm install
+    ```
+- Run the frontend
+    ```bash
+    npm run start
+    ```
+
+## Redis
+
+- We need to have a redis server running on the same machine as the backend.
+- Install redis from https://redis.io/docs/install/
+    ```bash
+    redis-server
+    ```
+
+## Development
 
 - Install pre-commit hooks
     ```bash
