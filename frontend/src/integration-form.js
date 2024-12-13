@@ -18,15 +18,15 @@ const integrationMapping = {
 };
 
 export const IntegrationForm = () => {
-  const [integrationParams, setIntegrationParams] = useState({});
+  const [integrationConnected, setIntegrationConnected] = useState(false);
   const [user, setUser] = useState("TestUser");
   const [org, setOrg] = useState("TestOrg");
   const [currType, setCurrType] = useState(null);
   const CurrIntegration = integrationMapping[currType];
 
   const handleIntegrationTypeChange = (e, value) => {
-    // Reset integrationParams when integration type changes
-    setIntegrationParams({});
+    // Reset integrationConnected when integration type changes
+    setIntegrationConnected(false);
     setCurrType(value);
   };
 
@@ -71,16 +71,17 @@ export const IntegrationForm = () => {
           <CurrIntegration
             user={user}
             org={org}
-            integrationParams={integrationParams}
-            setIntegrationParams={setIntegrationParams}
+            integrationConnected={integrationConnected}
+            setIntegrationConnected={setIntegrationConnected}
           />
         </Box>
       )}
-      {integrationParams?.credentials && (
+      {integrationConnected && (
         <Box sx={{ mt: 2 }}>
           <DataForm
-            integrationType={integrationParams?.type}
-            credentials={integrationParams?.credentials}
+            user={user}
+            org={org}
+            integrationType={currType}
           />
         </Box>
       )}

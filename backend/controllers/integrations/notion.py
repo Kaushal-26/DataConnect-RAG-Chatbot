@@ -25,9 +25,10 @@ async def oauth2callback_notion_integration(request: Request, notion_service: No
 async def get_notion_credentials_integration(
     notion_service: NotionServiceDependency, user_id: str = Form(...), org_id: str = Form(...)
 ):
-    return await notion_service.get_credentials(user_id, org_id)
+    # Return true if credentials are found, false otherwise
+    return len(await notion_service.get_credentials(user_id, org_id)) > 0
 
 
 @router.post("/load", response_model=List[IntegrationItem])
-async def get_notion_items(notion_service: NotionServiceDependency, credentials: str = Form(...)):
-    return await notion_service.get_items(credentials)
+async def get_notion_items(notion_service: NotionServiceDependency, user_id: str = Form(...), org_id: str = Form(...)):
+    return await notion_service.get_items(user_id=user_id, org_id=org_id)

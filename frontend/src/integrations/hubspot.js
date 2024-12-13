@@ -7,8 +7,8 @@ import axios from "axios";
 export const HubspotIntegration = ({
   user,
   org,
-  integrationParams,
-  setIntegrationParams,
+  integrationConnected,
+  setIntegrationConnected,
 }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -55,15 +55,11 @@ export const HubspotIntegration = ({
         `http://localhost:8000/integrations/hubspot/credentials`,
         formData
       );
-      const credentials = response.data;
-      if (credentials) {
+      const isConnected = response.data;
+      if (isConnected) {
         setIsConnecting(false);
         setIsConnected(true);
-        setIntegrationParams((prev) => ({
-          ...prev,
-          credentials: credentials,
-          type: "HubSpot",
-        }));
+        setIntegrationConnected(true);
       }
       setIsConnecting(false);
     } catch (e) {
@@ -73,8 +69,8 @@ export const HubspotIntegration = ({
   };
 
   useEffect(() => {
-    setIsConnected(integrationParams?.credentials ? true : false);
-  }, [integrationParams?.credentials]);
+    setIsConnected(integrationConnected ? true : false);
+  }, [integrationConnected]);
 
   return (
     <>

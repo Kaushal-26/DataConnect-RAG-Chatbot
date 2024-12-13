@@ -20,7 +20,7 @@ const endpointMapping = {
   HubSpot: "hubspot",
 };
 
-export const DataForm = ({ integrationType, credentials }) => {
+export const DataForm = ({ user, org, integrationType }) => {
   const [loadedData, setLoadedData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -31,7 +31,8 @@ export const DataForm = ({ integrationType, credentials }) => {
     setError(null);
     try {
       const formData = new FormData();
-      formData.append("credentials", JSON.stringify(credentials));
+      formData.append("user_id", user);
+      formData.append("org_id", org);
       const response = await axios.post(
         `http://localhost:8000/integrations/${endpoint}/load`,
         formData

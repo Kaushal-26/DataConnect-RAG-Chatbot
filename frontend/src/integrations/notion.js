@@ -7,8 +7,8 @@ import axios from "axios";
 export const NotionIntegration = ({
   user,
   org,
-  integrationParams,
-  setIntegrationParams,
+  integrationConnected,
+  setIntegrationConnected,
 }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -56,15 +56,11 @@ export const NotionIntegration = ({
         `http://localhost:8000/integrations/notion/credentials`,
         formData
       );
-      const credentials = response.data;
-      if (credentials) {
+      const isConnected = response.data;
+      if (isConnected) {
         setIsConnecting(false);
         setIsConnected(true);
-        setIntegrationParams((prev) => ({
-          ...prev,
-          credentials: credentials,
-          type: "Notion",
-        }));
+        setIntegrationConnected(true);
       }
       setIsConnecting(false);
     } catch (e) {
@@ -74,8 +70,8 @@ export const NotionIntegration = ({
   };
 
   useEffect(() => {
-    setIsConnected(integrationParams?.credentials ? true : false);
-  }, [integrationParams?.credentials]);
+    setIsConnected(integrationConnected ? true : false);
+  }, [integrationConnected]);
 
   return (
     <>

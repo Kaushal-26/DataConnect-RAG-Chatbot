@@ -1,8 +1,9 @@
 import base64
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from fastapi import Request
+from fastapi.responses import HTMLResponse
 
 from repository.redis import RedisRepository
 from schemas import IntegrationItem
@@ -49,13 +50,13 @@ class BaseIntegrationService(ABC):
         pass
 
     @abstractmethod
-    async def oauth2callback(self, request: Request) -> str:
+    async def oauth2callback(self, request: Request) -> HTMLResponse:
         pass
 
     @abstractmethod
-    async def get_credentials(self, user_id: str, org_id: str) -> str:
+    async def get_credentials(self, user_id: str, org_id: str) -> Any:
         pass
 
     @abstractmethod
-    async def get_items(self, credentials: str) -> List[IntegrationItem]:
+    async def get_items(self, user_id: str, org_id: str) -> List[IntegrationItem]:
         pass

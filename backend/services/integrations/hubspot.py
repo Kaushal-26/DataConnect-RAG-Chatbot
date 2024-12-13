@@ -94,21 +94,15 @@ class HubspotService(BaseIntegrationService):
         if not credentials:
             raise HTTPException(status_code=400, detail="No credentials found for HubSpot integration.")
 
-        credentials = json.loads(credentials)
-        if not credentials:
-            raise HTTPException(status_code=400, detail="No credentials found for HubSpot integration.")
+        return json.loads(credentials)
 
-        await self.redis_client.delete(f"hubspot_credentials:{org_id}:{user_id}")
-
-        return credentials
-
-    async def get_items(self, credentials: str) -> List[IntegrationItem]:
+    async def get_items(self, user_id: str, org_id: str) -> List[IntegrationItem]:
         """
         Fetch the items from HubSpot API
         - Here we are fetching the contacts of the companies as integration items.
         """
 
-        credentials = json.loads(credentials)
+        credentials = await self.get_credentials(user_id, org_id)
         api_client = HubSpot(access_token=credentials.get("access_token"))
 
         list_of_integration_item_metadata = []

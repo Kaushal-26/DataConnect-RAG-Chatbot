@@ -108,15 +108,12 @@ class AirtableService(BaseIntegrationService):
         if not credentials:
             raise HTTPException(status_code=400, detail="No credentials found.")
 
-        credentials = json.loads(credentials)
-        await self.redis_client.delete(f"airtable_credentials:{org_id}:{user_id}")
+        return json.loads(credentials)
 
-        return credentials
-
-    async def get_items(self, credentials: str) -> List[IntegrationItem]:
+    async def get_items(self, user_id: str, org_id: str) -> List[IntegrationItem]:
         """Fetch the items from the Airtable API"""
 
-        credentials = json.loads(credentials)
+        credentials = await self.get_credentials(user_id, org_id)
         url = f"{settings.AIRTABLE_API_URL}/meta/bases"
         list_of_integration_item_metadata = []
         list_of_responses = []

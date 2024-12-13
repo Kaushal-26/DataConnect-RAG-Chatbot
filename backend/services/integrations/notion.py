@@ -85,18 +85,12 @@ class NotionService(BaseIntegrationService):
         if not credentials:
             raise HTTPException(status_code=400, detail="No credentials found.")
 
-        credentials = json.loads(credentials)
-        if not credentials:
-            raise HTTPException(status_code=400, detail="No credentials found.")
+        return json.loads(credentials)
 
-        await self.redis_client.delete(f"notion_credentials:{org_id}:{user_id}")
-
-        return credentials
-
-    async def get_items(self, credentials: str) -> List[IntegrationItem]:
+    async def get_items(self, user_id: str, org_id: str) -> List[IntegrationItem]:
         """Aggregates all metadata relevant for a notion integration"""
 
-        credentials = json.loads(credentials)
+        credentials = await self.get_credentials(user_id, org_id)
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{settings.NOTION_API_URL}/search",

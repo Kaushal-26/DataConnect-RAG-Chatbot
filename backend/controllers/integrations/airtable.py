@@ -25,9 +25,12 @@ async def oauth2callback_airtable_integration(request: Request, airtable_service
 async def get_airtable_credentials_integration(
     airtable_service: AirtableServiceDependency, user_id: str = Form(...), org_id: str = Form(...)
 ):
-    return await airtable_service.get_credentials(user_id=user_id, org_id=org_id)
+    # Return true if credentials are found, false otherwise
+    return len(await airtable_service.get_credentials(user_id=user_id, org_id=org_id)) > 0
 
 
 @router.post("/load", response_model=List[IntegrationItem])
-async def get_airtable_items(airtable_service: AirtableServiceDependency, credentials: str = Form(...)):
-    return await airtable_service.get_items(credentials=credentials)
+async def get_airtable_items(
+    airtable_service: AirtableServiceDependency, user_id: str = Form(...), org_id: str = Form(...)
+):
+    return await airtable_service.get_items(user_id=user_id, org_id=org_id)

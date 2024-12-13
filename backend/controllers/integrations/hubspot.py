@@ -25,9 +25,12 @@ async def oauth2callback_hubspot_integration(request: Request, hubspot_service: 
 async def get_hubspot_credentials_integration(
     hubspot_service: HubspotServiceDependency, user_id: str = Form(...), org_id: str = Form(...)
 ):
-    return await hubspot_service.get_credentials(user_id, org_id)
+    # Return true if credentials are found, false otherwise
+    return len(await hubspot_service.get_credentials(user_id, org_id)) > 0
 
 
 @router.post("/load", response_model=List[IntegrationItem])
-async def load_slack_data_integration(hubspot_service: HubspotServiceDependency, credentials: str = Form(...)):
-    return await hubspot_service.get_items(credentials)
+async def load_slack_data_integration(
+    hubspot_service: HubspotServiceDependency, user_id: str = Form(...), org_id: str = Form(...)
+):
+    return await hubspot_service.get_items(user_id=user_id, org_id=org_id)
