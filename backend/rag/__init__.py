@@ -48,7 +48,7 @@ class RAGEngine:
         document = Document(text=data, metadata=metadata)
         index = await self.load_index(user_id, org_id)
         index.insert(document)
-        index.storage_context.persist(persist_dir=f"./data/org_{org_id}/user_{user_id}")
+        index.storage_context.persist(persist_dir=f"{settings.RAG_STORAGE_PATH}/org_{org_id}/user_{user_id}")
 
     async def load_index(self, user_id: str, org_id: str) -> VectorStoreIndex:
         """
@@ -57,7 +57,7 @@ class RAGEngine:
         """
 
         index_id = f"vector_index_org:{org_id}_user:{user_id}"
-        user_storage_path = f"./data/org_{org_id}/user_{user_id}"
+        user_storage_path = f"{settings.RAG_STORAGE_PATH}/org_{org_id}/user_{user_id}"
 
         if not os.path.exists(user_storage_path):
             # Create a new index for the user if it doesn't exist
@@ -101,7 +101,7 @@ class RAGEngine:
     async def chat(self, user_id: str, org_id: str, chat_session_id: str, message: str) -> str:
         # Fetch chat store from the local storage
         chat_store = SimpleChatStore.from_persist_path(
-            persist_path=f"./data/org_{org_id}/user_{user_id}/chat_session_{chat_session_id}.json"
+            persist_path=f"{settings.RAG_STORAGE_PATH}/org_{org_id}/user_{user_id}/chat_session_{chat_session_id}.json"
         )
 
         # Load the chat memory from the local storage
@@ -119,8 +119,10 @@ class RAGEngine:
         response = chat_engine.chat(message)
 
         # Save the chat history to the local storage
-        chat_store.persist(persist_path=f"./data/org_{org_id}/user_{user_id}/chat_session_{chat_session_id}.json")
+        chat_store.persist(
+            persist_path=f"{settings.RAG_STORAGE_PATH}/org_{org_id}/user_{user_id}/chat_session_{chat_session_id}.json"
+        )
 
         # Save the index to the local storage
-        index.storage_context.persist(persist_dir=f"./data/org_{org_id}/user_{user_id}")
+        index.storage_context.persist(persist_dir=f"{settings.RAG_STORAGE_PATH}/org_{org_id}/user_{user_id}")
         return response

@@ -54,5 +54,7 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o"
     CHAT_MEMORY_TOKEN_LIMIT: int = 5000
 
+    RAG_STORAGE_PATH: str = "./rag_storage"
+
 
 settings = Settings()
