@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     # RAG
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
-    OPENAI_MODEL: str = "gpt-4o"
+    OPENAI_CHAT_MODEL: str = "gpt-4o"
     CHAT_MEMORY_TOKEN_LIMIT: int = 5000
 
     RAG_STORAGE_PATH: str = "./rag_storage"

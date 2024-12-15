@@ -14,10 +14,10 @@ load_dotenv()
 # Redis Repository Dependency
 async def get_redis_client():
     try:
-        redis_client = RedisRepository(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
-        yield redis_client
+        redis_repository = RedisRepository(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
+        yield redis_repository
     finally:
-        await redis_client.close()
+        await redis_repository.close()
 
 
 RedisRepositoryDependency = Annotated[RedisRepository, Depends(get_redis_client)]
@@ -32,14 +32,14 @@ async def get_rag_engine():
         yield None  # Return None if RAG engine is not initialized
 
 
-RAGDependency = Annotated[Optional[RAGEngine], Depends(get_rag_engine)]
+RAGEngineDependency = Annotated[Optional[RAGEngine], Depends(get_rag_engine)]
 
 
 # Airtable Service Dependency
-async def get_airtable_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
+async def get_airtable_service(redis_repository: RedisRepositoryDependency, rag_engine: RAGEngineDependency):
     try:
         yield AirtableService(
-            redis_repository=redis_client,
+            redis_repository=redis_repository,
             authorization_url=f"{settings.AIRTABLE_OAUTH_URL}/authorize",
             client_id=settings.AIRTABLE_CLIENT_ID,
             client_secret=settings.AIRTABLE_CLIENT_SECRET,
@@ -55,10 +55,10 @@ AirtableServiceDependency = Annotated[AirtableService, Depends(get_airtable_serv
 
 
 # Hubspot Service Dependency
-async def get_hubspot_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
+async def get_hubspot_service(redis_repository: RedisRepositoryDependency, rag_engine: RAGEngineDependency):
     try:
         yield HubspotService(
-            redis_repository=redis_client,
+            redis_repository=redis_repository,
             authorization_url=f"{settings.HUBSPOT_OAUTH_URL}/authorize",
             client_id=settings.HUBSPOT_CLIENT_ID,
             client_secret=settings.HUBSPOT_CLIENT_SECRET,
@@ -74,10 +74,10 @@ HubspotServiceDependency = Annotated[HubspotService, Depends(get_hubspot_service
 
 
 # Notion Service Dependency
-async def get_notion_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
+async def get_notion_service(redis_repository: RedisRepositoryDependency, rag_engine: RAGEngineDependency):
     try:
         yield NotionService(
-            redis_repository=redis_client,
+            redis_repository=redis_repository,
             authorization_url=f"{settings.NOTION_OAUTH_URL}/authorize",
             client_id=settings.NOTION_CLIENT_ID,
             client_secret=settings.NOTION_CLIENT_SECRET,
@@ -92,7 +92,7 @@ NotionServiceDependency = Annotated[NotionService, Depends(get_notion_service)]
 
 
 # AI Service Dependency
-async def get_ai_service(rag_engine: RAGDependency):
+async def get_ai_service(rag_engine: RAGEngineDependency):
     try:
         # Ensure that the RAG engine is initialized
         assert rag_engine is not None

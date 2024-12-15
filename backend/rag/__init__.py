@@ -41,7 +41,7 @@ class RAGEngine:
         if settings.OPENAI_API_KEY is None:
             raise ValueError("Please set OPENAI_API_KEY in .env file, for AI service to work")
 
-        self.llm = OpenAI(api_key=settings.OPENAI_API_KEY, model=settings.OPENAI_MODEL)
+        self.llm = OpenAI(api_key=settings.OPENAI_API_KEY, model=settings.OPENAI_CHAT_MODEL)
         self.embed_model = OpenAIEmbedding(api_key=settings.OPENAI_API_KEY, model=settings.OPENAI_EMBEDDING_MODEL)
 
     async def add_data(self, user_id: str, org_id: str, data: str, metadata: dict = {}):
