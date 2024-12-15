@@ -5,6 +5,7 @@ from typing import Any, List, Optional
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 
+from rag import RAGEngine
 from repository.redis import RedisRepository
 from schemas import IntegrationItem
 
@@ -20,6 +21,7 @@ class BaseIntegrationService(ABC):
         client_secret: str,
         redirect_uri: str,
         scopes: Optional[str] = None,
+        rag_engine: Optional[RAGEngine] = None,
     ):
         # Initialize the client id and secret
         self.client_id = client_id
@@ -45,6 +47,9 @@ class BaseIntegrationService(ABC):
         # Initialize the redis client
         self.redis_client = redis_client
 
+        # Initialize the RAG engine
+        self.rag_engine = rag_engine
+
     @abstractmethod
     async def authorize(self, user_id: str, org_id: str) -> str:
         pass
@@ -60,3 +65,12 @@ class BaseIntegrationService(ABC):
     @abstractmethod
     async def get_items(self, user_id: str, org_id: str) -> List[IntegrationItem]:
         pass
+
+    async def add_integration_items_to_rag(self, user_id: str, org_id: str, items_json: str, integration_type: str):
+        """Add the items to the RAG engine"""
+        if self.rag_engine is None:
+            return
+
+        metadata = {"integration_type": integration_type}
+
+        await self.rag_engine.add_data(user_id=user_id, org_id=org_id, data=items_json, metadata=metadata)

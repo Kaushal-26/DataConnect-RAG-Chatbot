@@ -1,10 +1,10 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 
 from config import settings
-from rag import RAG
+from rag import RAGEngine
 from repository import RedisRepository
 from services import AirtableService, AIService, HubspotService, NotionService
 
@@ -23,8 +23,20 @@ async def get_redis_client():
 RedisRepositoryDependency = Annotated[RedisRepository, Depends(get_redis_client)]
 
 
+# RAG Dependency
+async def get_rag_engine():
+    try:
+        yield RAGEngine()
+    except Exception as e:
+        print(f"---------- Failed to initialize RAG engine. Please add OPENAI_API_KEY in .env file: {e} ----------")
+        yield None  # Return None if RAG engine is not initialized
+
+
+RAGDependency = Annotated[Optional[RAGEngine], Depends(get_rag_engine)]
+
+
 # Airtable Service Dependency
-async def get_airtable_service(redis_client: RedisRepositoryDependency):
+async def get_airtable_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
     try:
         yield AirtableService(
             redis_client=redis_client,
@@ -33,6 +45,7 @@ async def get_airtable_service(redis_client: RedisRepositoryDependency):
             client_secret=settings.AIRTABLE_CLIENT_SECRET,
             redirect_uri=settings.AIRTABLE_REDIRECT_URI,
             scopes=settings.AIRTABLE_SCOPES,
+            rag_engine=rag_engine,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get airtable integration service: {e}")
@@ -42,7 +55,7 @@ AirtableServiceDependency = Annotated[AirtableService, Depends(get_airtable_serv
 
 
 # Hubspot Service Dependency
-async def get_hubspot_service(redis_client: RedisRepositoryDependency):
+async def get_hubspot_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
     try:
         yield HubspotService(
             redis_client=redis_client,
@@ -51,6 +64,7 @@ async def get_hubspot_service(redis_client: RedisRepositoryDependency):
             client_secret=settings.HUBSPOT_CLIENT_SECRET,
             redirect_uri=settings.HUBSPOT_REDIRECT_URI,
             scopes=settings.HUBSPOT_SCOPES,
+            rag_engine=rag_engine,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get hubspot integration service: {e}")
@@ -60,7 +74,7 @@ HubspotServiceDependency = Annotated[HubspotService, Depends(get_hubspot_service
 
 
 # Notion Service Dependency
-async def get_notion_service(redis_client: RedisRepositoryDependency):
+async def get_notion_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
     try:
         yield NotionService(
             redis_client=redis_client,
@@ -68,6 +82,7 @@ async def get_notion_service(redis_client: RedisRepositoryDependency):
             client_id=settings.NOTION_CLIENT_ID,
             client_secret=settings.NOTION_CLIENT_SECRET,
             redirect_uri=settings.NOTION_REDIRECT_URI,
+            rag_engine=rag_engine,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get notion integration service: {e}")
@@ -76,21 +91,13 @@ async def get_notion_service(redis_client: RedisRepositoryDependency):
 NotionServiceDependency = Annotated[NotionService, Depends(get_notion_service)]
 
 
-# RAG Dependency
-async def get_rag_engine():
-    try:
-        yield RAG()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get rag engine: {e}")
-
-
-RAGDependency = Annotated[RAG, Depends(get_rag_engine)]
-
-
 # AI Service Dependency
-async def get_ai_service(rag: RAGDependency):
+async def get_ai_service(rag_engine: RAGDependency):
     try:
-        yield AIService(rag=rag)
+        # Ensure that the RAG engine is initialized
+        assert rag_engine is not None
+
+        yield AIService(rag_engine=rag_engine)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get ai service: {e}")
 

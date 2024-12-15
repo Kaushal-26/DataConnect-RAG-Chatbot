@@ -36,7 +36,7 @@ CUSTOM_CHAT_HISTORY = [
 
 
 # https://docs.llamaindex.ai/en/stable/examples/vector_stores/SimpleIndexDemo/
-class RAG:
+class RAGEngine:
     def __init__(self):
         if settings.OPENAI_API_KEY is None:
             raise ValueError("Please set OPENAI_API_KEY in .env file, for AI service to work")
@@ -44,8 +44,8 @@ class RAG:
         self.llm = OpenAI(api_key=settings.OPENAI_API_KEY, model=settings.OPENAI_MODEL)
         self.embed_model = OpenAIEmbedding(api_key=settings.OPENAI_API_KEY, model=settings.OPENAI_EMBEDDING_MODEL)
 
-    async def add_data(self, user_id: str, org_id: str, data: str, integration_type: str):
-        document = Document(text=data, metadata={"integration_type": integration_type})
+    async def add_data(self, user_id: str, org_id: str, data: str, metadata: dict = {}):
+        document = Document(text=data, metadata=metadata)
         index = await self.load_index(user_id, org_id)
         index.insert(document)
         index.storage_context.persist(persist_dir=f"./data/org_{org_id}/user_{user_id}")

@@ -11,7 +11,7 @@ from hubspot import HubSpot
 
 from config import settings
 from schemas import IntegrationItem
-from utils import print_items
+from utils import rich_print_json
 
 from .base import BaseIntegrationService
 
@@ -129,10 +129,19 @@ class HubspotService(BaseIntegrationService):
 
             list_of_integration_item_metadata.extend(new_integration_item_metadata)
 
-        print_items(
-            items=[item.model_dump(mode="json") for item in list_of_integration_item_metadata],
-            message="HubSpot Integration Items",
-        )
+        items_json = "\n".join([item.model_dump_json(indent=4) for item in list_of_integration_item_metadata])
+        rich_print_json(items_json, "Hubspot Integration Items")
+
+        # Add the items to the RAG engine in a coroutine without blocking the main thread
+        if self.rag_engine is not None:
+            asyncio.create_task(
+                self.add_integration_items_to_rag(
+                    user_id=user_id,
+                    org_id=org_id,
+                    items_json=items_json,
+                    integration_type="Hubspot",
+                )
+            )
 
         return list_of_integration_item_metadata
 
@@ -160,7 +169,7 @@ class HubspotService(BaseIntegrationService):
 
         response = IntegrationItem(
             id=contact.get("id"),
-            type="hubspot_contacts",
+            type="hubspot_contacts_of_companies",
             name=f"{contact.get('properties').get('firstname')} {contact.get('properties').get('lastname')}",
             parent_id=company.get("id"),
             parent_path_or_name=company.get("properties").get("name"),

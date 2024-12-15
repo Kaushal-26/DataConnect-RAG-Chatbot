@@ -73,6 +73,7 @@ select = [
 ]
 ignore = [
     "E501", # line too long
+    "RUF006", # Store a reference value
 ]
 
 [tool.ruff.format]

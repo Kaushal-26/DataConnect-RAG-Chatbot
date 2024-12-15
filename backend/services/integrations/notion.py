@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 
 from config import settings
 from schemas import IntegrationItem
-from utils import print_items
+from utils import rich_print_json
 
 from .base import BaseIntegrationService
 
@@ -111,10 +111,19 @@ class NotionService(BaseIntegrationService):
             # Run the tasks in parallel and wait for them to complete
             list_of_integration_item_metadata = await asyncio.gather(*task_integration_item_metadata)
 
-        print_items(
-            items=[item.model_dump(mode="json") for item in list_of_integration_item_metadata],
-            message="Notion Integration Items",
-        )
+        items_json = "\n".join([item.model_dump_json(indent=4) for item in list_of_integration_item_metadata])
+        rich_print_json(items_json, "Notion Integration Items")
+
+        # Add the items to the RAG engine in a coroutine without blocking the main thread
+        if self.rag_engine is not None:
+            asyncio.create_task(
+                self.add_integration_items_to_rag(
+                    user_id=user_id,
+                    org_id=org_id,
+                    items_json=items_json,
+                    integration_type="Notion",
+                )
+            )
 
         return list_of_integration_item_metadata
 

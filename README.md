@@ -25,6 +25,7 @@ A seamless integration platform that authenticates with **HubSpot**, **Airtable*
     ```bash
     uv run uvicorn main:app --reload
     ```
+- After loading the data from integrations, If added `OPENAI_API_KEY` in `.env` file, then you can use the [RAG engine](#use-rag-with-ai-service)
 
 ## Frontend
 
