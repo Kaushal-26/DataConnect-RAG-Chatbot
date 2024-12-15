@@ -16,3 +16,4 @@ dump.rdb
 .ruff_cache
 
 data/
+rag_storage/
