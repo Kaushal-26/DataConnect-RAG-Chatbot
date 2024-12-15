@@ -10,6 +10,7 @@ import { AirtableIntegration } from "./integrations/airtable";
 import { NotionIntegration } from "./integrations/notion";
 import { HubspotIntegration } from "./integrations/hubspot";
 import { DataForm } from "./data-form";
+import { MyChatBot } from "./bot";
 
 const integrationMapping = {
   Notion: NotionIntegration,
@@ -85,6 +86,7 @@ export const IntegrationForm = () => {
           />
         </Box>
       )}
+      <MyChatBot user={String(user)} org={String(org)} />
     </Box>
   );
 };
