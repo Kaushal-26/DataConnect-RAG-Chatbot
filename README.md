@@ -49,6 +49,19 @@ A seamless integration platform that authenticates with **HubSpot**, **Airtable*
     redis-server
     ```
 
+## Use RAG with AI Service
+
+- Set `OPENAI_API_KEY` in `.env`.
+- Configure openai models as required in `backend/config.py` or use default values.
+- Call `/chat` endpoint with **user_id**, **org_id**, **chat_session_id** and **message** to get the response.
+    ```bash
+    curl -X 'POST' \
+    'http://127.0.0.1:8000/chat' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/x-www-form-urlencoded' \
+    -d 'user_id=1&org_id=1&chat_session_id=1&message=Hi'
+    ```
+
 ## Development
 
 - Install pre-commit hooks

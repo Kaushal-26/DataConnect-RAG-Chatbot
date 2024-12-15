@@ -19,3 +19,8 @@ class IntegrationItem(BaseModel):
     delta: Optional[str] = None
     drive_id: Optional[str] = None
     visibility: Optional[bool] = True
+
+
+class ChatMessage(BaseModel):
+    message: str
+    role: str = "ASSISTANT"

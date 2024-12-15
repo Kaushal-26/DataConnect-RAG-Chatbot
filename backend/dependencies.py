@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 
 from config import settings
+from rag import RAG
 from repository import RedisRepository
-from services import AirtableService, HubspotService, NotionService
+from services import AirtableService, AIService, HubspotService, NotionService
 
 load_dotenv()
 
@@ -73,6 +74,28 @@ async def get_notion_service(redis_client: RedisRepositoryDependency):
 
 
 NotionServiceDependency = Annotated[NotionService, Depends(get_notion_service)]
+
+
+# RAG Dependency
+async def get_rag_engine():
+    try:
+        yield RAG()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get rag engine: {e}")
+
+
+RAGDependency = Annotated[RAG, Depends(get_rag_engine)]
+
+
+# AI Service Dependency
+async def get_ai_service(rag: RAGDependency):
+    try:
+        yield AIService(rag=rag)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get ai service: {e}")
+
+
+AIServiceDependency = Annotated[AIService, Depends(get_ai_service)]
 
 
 __all__ = [
