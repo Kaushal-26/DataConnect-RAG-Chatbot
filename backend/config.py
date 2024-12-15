@@ -48,5 +48,11 @@ class Settings(BaseSettings):
 
     NOTION_VERSION: str = "2022-06-28"
 
+    # RAG
+    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
+    OPENAI_MODEL: str = "gpt-4o"
+    CHAT_MEMORY_TOKEN_LIMIT: int = 5000
+
 
 settings = Settings()

@@ -14,3 +14,5 @@ dump.rdb
 .python-version
 
 .ruff_cache
+
+data/
