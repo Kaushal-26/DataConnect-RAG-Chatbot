@@ -6,7 +6,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 
 from rag import RAGEngine
-from repository.redis import RedisRepository
+from repositories.redis import RedisRepository
 from schemas import IntegrationItem
 
 

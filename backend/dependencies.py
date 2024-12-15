@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 
 from config import settings
 from rag import RAGEngine
-from repository import RedisRepository
+from repositories import RedisRepository
 from services import AirtableService, AIService, HubspotService, NotionService
 
 load_dotenv()
