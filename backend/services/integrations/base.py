@@ -15,7 +15,7 @@ class BaseIntegrationService(ABC):
 
     def __init__(
         self,
-        redis_client: RedisRepository,
+        redis_repository: RedisRepository,
         authorization_url: str,
         client_id: str,
         client_secret: str,
@@ -45,7 +45,7 @@ class BaseIntegrationService(ABC):
         self.encoded_client_id_secret = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
 
         # Initialize the redis client
-        self.redis_client = redis_client
+        self.redis_repository = redis_repository
 
         # Initialize the RAG engine
         self.rag_engine = rag_engine

@@ -41,8 +41,8 @@ class AirtableService(BaseIntegrationService):
             f"code_challenge_method=S256"
         )
         await asyncio.gather(
-            self.redis_client.add(f"airtable_state:{org_id}:{user_id}", json.dumps(state_data), expire=600),
-            self.redis_client.add(f"airtable_verifier:{org_id}:{user_id}", code_verifier, expire=600),
+            self.redis_repository.add(f"airtable_state:{org_id}:{user_id}", json.dumps(state_data), expire=600),
+            self.redis_repository.add(f"airtable_verifier:{org_id}:{user_id}", code_verifier, expire=600),
         )
 
         return auth_url
@@ -62,8 +62,8 @@ class AirtableService(BaseIntegrationService):
         org_id = state_data.get("org_id")
 
         saved_state, code_verifier = await asyncio.gather(
-            self.redis_client.get(f"airtable_state:{org_id}:{user_id}"),
-            self.redis_client.get(f"airtable_verifier:{org_id}:{user_id}"),
+            self.redis_repository.get(f"airtable_state:{org_id}:{user_id}"),
+            self.redis_repository.get(f"airtable_verifier:{org_id}:{user_id}"),
         )
 
         if not saved_state or original_state != json.loads(saved_state).get("state"):
@@ -85,11 +85,13 @@ class AirtableService(BaseIntegrationService):
                         "Content-Type": "application/x-www-form-urlencoded",
                     },
                 ),
-                self.redis_client.delete(f"airtable_state:{org_id}:{user_id}"),
-                self.redis_client.delete(f"airtable_verifier:{org_id}:{user_id}"),
+                self.redis_repository.delete(f"airtable_state:{org_id}:{user_id}"),
+                self.redis_repository.delete(f"airtable_verifier:{org_id}:{user_id}"),
             )
 
-        await self.redis_client.add(f"airtable_credentials:{org_id}:{user_id}", json.dumps(response.json()), expire=600)
+        await self.redis_repository.add(
+            f"airtable_credentials:{org_id}:{user_id}", json.dumps(response.json()), expire=600
+        )
 
         close_window_script = """
         <html>
@@ -104,7 +106,7 @@ class AirtableService(BaseIntegrationService):
     async def get_credentials(self, user_id: str, org_id: str) -> Any:
         """Get the Airtable credentials for the user"""
 
-        credentials = await self.redis_client.get(f"airtable_credentials:{org_id}:{user_id}")
+        credentials = await self.redis_repository.get(f"airtable_credentials:{org_id}:{user_id}")
         if not credentials:
             raise HTTPException(status_code=400, detail="No credentials found.")
 

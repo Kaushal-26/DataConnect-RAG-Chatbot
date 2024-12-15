@@ -30,7 +30,7 @@ class NotionService(BaseIntegrationService):
         encoded_state = base64.urlsafe_b64encode(json.dumps(state_data).encode("utf-8")).decode("utf-8")
 
         auth_url = f"{self.authorization_url}&state={encoded_state}"
-        await self.redis_client.add(f"notion_state:{org_id}:{user_id}", json.dumps(state_data), expire=600)
+        await self.redis_repository.add(f"notion_state:{org_id}:{user_id}", json.dumps(state_data), expire=600)
 
         return auth_url
 
@@ -49,7 +49,7 @@ class NotionService(BaseIntegrationService):
         user_id = state_data.get("user_id")
         org_id = state_data.get("org_id")
 
-        saved_state = await self.redis_client.get(f"notion_state:{org_id}:{user_id}")
+        saved_state = await self.redis_repository.get(f"notion_state:{org_id}:{user_id}")
 
         if not saved_state or original_state != json.loads(saved_state).get("state"):
             raise HTTPException(status_code=400, detail="State does not match.")
@@ -64,10 +64,12 @@ class NotionService(BaseIntegrationService):
                         "Content-Type": "application/json",
                     },
                 ),
-                self.redis_client.delete(f"notion_state:{org_id}:{user_id}"),
+                self.redis_repository.delete(f"notion_state:{org_id}:{user_id}"),
             )
 
-        await self.redis_client.add(f"notion_credentials:{org_id}:{user_id}", json.dumps(response.json()), expire=600)
+        await self.redis_repository.add(
+            f"notion_credentials:{org_id}:{user_id}", json.dumps(response.json()), expire=600
+        )
 
         close_window_script = """
         <html>
@@ -81,7 +83,7 @@ class NotionService(BaseIntegrationService):
     async def get_credentials(self, user_id: str, org_id: str) -> dict:
         """Get the credentials for the Notion API"""
 
-        credentials = await self.redis_client.get(f"notion_credentials:{org_id}:{user_id}")
+        credentials = await self.redis_repository.get(f"notion_credentials:{org_id}:{user_id}")
         if not credentials:
             raise HTTPException(status_code=400, detail="No credentials found.")
 

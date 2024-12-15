@@ -39,7 +39,7 @@ RAGDependency = Annotated[Optional[RAGEngine], Depends(get_rag_engine)]
 async def get_airtable_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
     try:
         yield AirtableService(
-            redis_client=redis_client,
+            redis_repository=redis_client,
             authorization_url=f"{settings.AIRTABLE_OAUTH_URL}/authorize",
             client_id=settings.AIRTABLE_CLIENT_ID,
             client_secret=settings.AIRTABLE_CLIENT_SECRET,
@@ -58,7 +58,7 @@ AirtableServiceDependency = Annotated[AirtableService, Depends(get_airtable_serv
 async def get_hubspot_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
     try:
         yield HubspotService(
-            redis_client=redis_client,
+            redis_repository=redis_client,
             authorization_url=f"{settings.HUBSPOT_OAUTH_URL}/authorize",
             client_id=settings.HUBSPOT_CLIENT_ID,
             client_secret=settings.HUBSPOT_CLIENT_SECRET,
@@ -77,7 +77,7 @@ HubspotServiceDependency = Annotated[HubspotService, Depends(get_hubspot_service
 async def get_notion_service(redis_client: RedisRepositoryDependency, rag_engine: RAGDependency):
     try:
         yield NotionService(
-            redis_client=redis_client,
+            redis_repository=redis_client,
             authorization_url=f"{settings.NOTION_OAUTH_URL}/authorize",
             client_id=settings.NOTION_CLIENT_ID,
             client_secret=settings.NOTION_CLIENT_SECRET,
